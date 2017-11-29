@@ -1,0 +1,42 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.Proxy;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.CapabilityType;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class selenoiddemo  {
+    public static void main(String[] args) throws MalformedURLException {
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setBrowserName("chrome");
+        capabilities.setVersion("61.0");
+        String proxyHost = "s1firewall:8080";
+        Proxy proxy = new Proxy();
+        proxy
+                .setProxyType(Proxy.ProxyType.MANUAL)
+                .setHttpProxy(proxyHost)
+                .setFtpProxy(proxyHost)
+                .setSslProxy(proxyHost)
+                .setNoProxy("");
+        capabilities.setCapability(CapabilityType.PROXY, proxy);
+        WebDriver driver = new RemoteWebDriver(new URL("http://10.1.49.12:8180/wd/hub"),capabilities);
+        driver.get("http://www.google.com");
+        WebElement element = driver.findElement(By.name("q"));
+        element.sendKeys("Cheese!");
+        element.submit();
+        System.out.println("Page title is: " + driver.getTitle());
+        // Wait for the page to load, timeout after 10 seconds
+        (new WebDriverWait(driver, 10)).until(new ExpectedCondition<Boolean>() {
+            public Boolean apply(WebDriver d) {
+                return d.getTitle().toLowerCase().startsWith("cheese!");
+            }
+        });
+        System.out.println("Page title is: " + driver.getTitle());
+        driver.quit();
+    }
+}
